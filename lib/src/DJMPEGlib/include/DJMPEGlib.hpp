@@ -6,7 +6,12 @@
 #include <cstdio>
 
 namespace dj {
+
 namespace MPEG {
+    enum class error : uint16_t { none = 0, kind_flag = 0 };
+
+    inline error error_default() { return error::none; }
+
     template <typename IO> class mpeg {
 
         private:
@@ -21,7 +26,8 @@ namespace MPEG {
             (void)dt;
         }
 
-        int io_read(IO&& io, int cbwanted = -1,
+        int io_read(IO&& io,
+            my::io::byte_count_type cbwanted = my::io::byte_count_type::default_value,
             my::seek_type sk = my::seek_type()) noexcept {
             int read = io(m_buf, cbwanted, std::forward<my::seek_type&&>(sk));
             LOGERR("This is some error");
@@ -34,7 +40,7 @@ namespace MPEG {
             : mpeg(std::forward<std::string_view>(sv), std::forward<IO&&>(io),
                   dummy_type{}) {
 
-            io_read(std::forward<IO&&>(m_io), -1);
+            io_read(std::forward<IO&&>(m_io), my::io::byte_count_type::default_value);
         }
     }; // namespace MPEG
 } // namespace MPEG

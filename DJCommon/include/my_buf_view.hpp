@@ -1,14 +1,21 @@
 #pragma once
 
 #include "my_logging.hpp"
+#include "my_types.hpp"
 #include <cstring>
 #include <cstdio>
 #include <cstddef>
 
 namespace my {
+namespace io {
+    enum class byte_count_type : int { default_value = -1 };
+    enum class byte_offset_type : int { default_value = -1 };
+    enum class large_size_type : int64_t { default_value = -1 };
+    enum class large_offset_type : int64_t { default_value = -1 };
+} // namespace io
 
 struct seek_type {
-    enum seek_direction {
+    enum seek_direction : int8_t {
         none = -1,
         cur = std::ios_base::cur,
         beg = std::ios_base::beg,
@@ -22,12 +29,12 @@ struct seek_type {
             default: return "none";
         };
     }
-    int64_t how_much = {0};
+    my::io::large_offset_type how_much = {my::io::large_offset_type::default_value};
     seek_direction dir = {seek_direction::none};
 
-    seek_type(
-        const int how_much, const seek_direction dir = seek_direction::none)
-        : how_much(how_much), dir(dir) {}
+    seek_type(const my::io::large_offset_type where_to,
+        const seek_direction dir = seek_direction::none)
+        : how_much(where_to), dir(dir) {}
     seek_type() = default;
 };
 
@@ -41,11 +48,10 @@ template <typename T> struct buf_view {
     public:
     buf_view() noexcept = default;
     constexpr buf_view(T* beg, T* end) noexcept : m_beg(beg), m_end(end) {}
-    constexpr buf_view(T* beg, size_t sz) noexcept
-        : m_beg(beg), m_end(m_beg + sz) {}
-    template <typename T, size_t size>
-    constexpr buf_view(T (&b)[size]) noexcept : m_beg(b), m_end(m_beg + size) {}
-    constexpr buf_view(const buf_view& rhs) noexcept { puts("buf_view copy"); }
+    constexpr buf_view(T* beg, size_t sz) noexcept : m_beg(beg), m_end(m_beg + sz) {}
+    template <typename X, size_t size>
+    constexpr buf_view(X (&b)[size]) noexcept : m_beg(b), m_end(m_beg + size) {}
+    constexpr buf_view(const buf_view& rhs) noexcept = default;
     constexpr buf_view& operator=(const buf_view& rhs) noexcept = default;
     constexpr buf_view& operator=(buf_view&& rhs) noexcept = default;
 

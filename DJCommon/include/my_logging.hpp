@@ -5,6 +5,7 @@
 #include <ctime>
 #include <vector>
 #include <set>
+#include "my_types.hpp"
 
 #ifndef NO_ERROR
 #define NO_ERROR 0
@@ -73,8 +74,7 @@ std::string get_base_name(const std::string& full_path) {
 }
 
 template <typename W, typename... Args>
-void log_it(
-    bool is_error, W& where, const char* file, int line, const Args&... args) {
+void log_it(bool is_error, W& where, const char* file, int line, const Args&... args) {
     using namespace std;
     const auto sep = ' ';
 
@@ -85,9 +85,9 @@ void log_it(
     } else {
         where << "INFO: ";
     }
-
+    using namespace my::types;
     ((where << sep << args), ...);
-    where << "\r\n";
+    where << std::endl;
 }
 
 } // namespace my
